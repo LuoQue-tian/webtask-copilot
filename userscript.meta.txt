@@ -1,0 +1,17 @@
+// ==UserScript==
+// @name         WebTask Copilot 网页助手
+// @namespace    urn:webtask-copilot
+// @version      0.7.4
+// @description  在 U 校园教材学习页和本地验收页显示 WebTask 助手。
+// @match        https://ucontent.unipus.cn/_ipublishpc_default/pc.html
+// @match        https://ucontent.unipus.cn/_ipublishpc_default/pc.html?*
+// @match        http://127.0.0.1/webtask-copilot/*
+// @grant        GM_download
+// @grant        GM_xmlhttpRequest
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @connect      api.deepseek.com
+// @connect      127.0.0.1
+// @match        https://ipub.unipus.cn/learner/textbook/book/*/chapter/*
+// @run-at       document-idle
+// ==/UserScript==

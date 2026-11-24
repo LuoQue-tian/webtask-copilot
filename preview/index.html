@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WebTask 助手更新</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font:
+          16px/1.65 "Inter",
+          "Microsoft YaHei",
+          sans-serif;
+        color: #203833;
+        background: #f3f6f2;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 42rem;
+        margin: clamp(2rem, 10vh, 7rem) auto;
+        padding: 0 1.5rem 5rem;
+      }
+      h1 {
+        font-size: clamp(2rem, 6vw, 3rem);
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+      }
+      h2 {
+        font-size: 1.25rem;
+        margin-top: 0;
+      }
+      section {
+        padding: 1.3rem;
+        margin: 1rem 0;
+        background: #fff;
+        border: 1px solid #cbd8ce;
+        border-radius: 12px;
+      }
+      a,
+      button {
+        display: inline-block;
+        background: #125d4e;
+        color: #fff;
+        font: inherit;
+        padding: 0.45rem 0.9rem;
+        border: 0;
+        border-radius: 6px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      output {
+        margin-inline-start: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>WebTask 助手更新</h1>
+      <section>
+        <h2 id="release">当前可更新版本</h2>
+        <p>
+          点击下方按钮，在油猴中确认版本，再回教材页按 F5。打开助手后点「提取本组」即可选择题目。
+        </p>
+        <a href="/install/webtask-copilot.user.js">安装或更新 WebTask 助手</a>
+      </section>
+      <section>
+        <h2>切换模拟页面</h2>
+        <p>展开助手，再切换页面，比较面板和下方显示的页面类型。</p>
+        <nav aria-label="模拟页面">
+          <a href="#courses">课程列表</a>
+          <a href="#assignments">作业列表</a>
+          <a href="#detail">作业详情</a>
+          <a href="#other">未知页面</a>
+        </nav>
+        <p id="sample"></p>
+      </section>
+      <section>
+        <h2>测试网页原有按钮</h2>
+        <p>展开助手时点击下面的按钮，检查计数是否增加。</p>
+        <button id="count" type="button">计数加一</button
+        ><output for="count" id="value">0</output>
+      </section>
+    </main>
+    <script>
+      if (typeof fetch === "function") {
+        fetch("/install/webtask-copilot.user.js", {cache: "no-store"})
+          .then(async response => {
+            if (!response.ok) throw new Error();
+            const version = /^\/\/\s*@version\s+(\S+)/m.exec(await response.text());
+            if (!version) throw new Error();
+            document.getElementById("release").textContent = "当前可更新版本 " + version[1];
+          }).catch(() => {
+            document.getElementById("release").textContent = "暂时无法读取发布版本，请稍后刷新";
+          });
+      }
+      const samples = new Map([
+        ["", ["course_list", "课程列表"]],
+        ["#self-test", ["course_list", "课程列表"]],
+        ["#courses", ["course_list", "课程列表"]],
+        ["#assignments", ["assignment_list", "作业列表"]],
+        ["#detail", ["assignment_detail", "作业详情"]],
+      ]);
+      let pending;
+      function renderSample() {
+        clearTimeout(pending);
+        const sample = document.getElementById("sample");
+        delete sample.dataset.previewPage;
+        const route = samples.get(location.hash);
+        if (!route) {
+          sample.textContent = "模拟页 · 未知页面";
+          return;
+        }
+        const ready = () => {
+          sample.dataset.previewPage = route[0];
+          sample.textContent = "模拟页 · " + route[1];
+        };
+        if (location.hash === "#detail") {
+          sample.textContent = "正在加载模拟作业详情…";
+          pending = setTimeout(ready, 150);
+        } else ready();
+      }
+      window.addEventListener("hashchange", renderSample);
+      renderSample();
+      const counter = document.getElementById("value");
+      document.getElementById("count").addEventListener("click", () => {
+        counter.value = String(Number(counter.value) + 1);
+      });
+      if (location.hash === "#self-test") {
+        const result = document.createElement("p");
+        result.id = "test-result";
+        document.querySelector("main").append(result);
+        const deadline = Date.now() + 5000;
+        const timer = setInterval(async () => {
+          const root = document.getElementById(
+            "webtask-copilot-widget",
+          )?.shadowRoot;
+          if (!root && Date.now() < deadline) return;
+          clearInterval(timer);
+          if (!root) {
+            result.textContent = "自检失败：等待油猴加载超时。";
+            return;
+          }
+          const launcher = root.querySelector(".launcher");
+          const panel = root.querySelector("section");
+          const initial = panel.hidden;
+          launcher.click();
+          const opened = panel.getBoundingClientRect().height > 0;
+          document.getElementById("count").click();
+          const waitFor = async (read) => {
+            for (let i = 0; i < 80; i++) {
+              if (read()) return true;
+              await new Promise((resolve) => setTimeout(resolve, 25));
+            }
+            return false;
+          };
+          let matched = true;
+          for (const [hash, label] of [
+            ["#assignments", "作业列表"],
+            ["#detail", "作业详情"],
+            ["#other", "未知页面"],
+            ["#courses", "课程列表"],
+          ]) {
+            document.querySelector('nav a[href="' + hash + '"]').click();
+            const correct = await waitFor(
+              () => root.querySelectorAll("dd")[1]?.textContent === label,
+            );
+            if (!correct) {
+              matched = false;
+              break;
+            }
+          }
+          panel.querySelector("button").click();
+          result.textContent =
+            initial &&
+            opened &&
+            panel.hidden &&
+            counter.value === "1" &&
+            matched &&
+            document.querySelectorAll("#webtask-copilot-widget").length === 1
+              ? "自检通过。页面识别、面板开关、单实例和网页计数均正常。"
+              : "自检失败。请检查脚本版本、页面类型、面板和计数。";
+        }, 100);
+      }
+    </script>
+  </body>
+</html>

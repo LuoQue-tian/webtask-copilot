@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+*.log
+output/
+.env
+.env.*
+.venv/
+vosk-model-*/
+__pycache__/
+Unit*-练习题.txt
+WebTask*蓝图*.md
+WebTask_Copilot_V3.0.md
+preview/*.png
+preview/*.user.js
+scripts/edge-smoke.mjs
