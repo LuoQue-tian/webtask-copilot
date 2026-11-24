@@ -2,11 +2,25 @@
 
 WebTask Copilot 是一个面向 U 校园教材学习页的中文油猴脚本。打开教材后，你可以在浮动面板里提取当前题组、转写听力或视频中的英文，并结合原文向 DeepSeek 追问。当前版本为 **0.7.4**，主要在 Windows 和 Microsoft Edge 上验证。
 
-## 安装与更新
+## 在 Edge 安装（第一次用油猴也可以）
 
-1. 在 Edge 安装并启用 Tampermonkey（油猴）。如果扩展详情中有「允许用户脚本」，请开启它。
-2. 打开仓库里的 [webtask-copilot.user.js](dist/webtask-copilot.user.js)，点击 **Raw**，在油猴页面确认安装。若浏览器直接下载文件，也可以在油猴「管理面板 → 实用工具」中从文件导入。
-3. 打开或刷新 U 校园教材学习页，点击右下角「WebTask 助手」。进入「设置」可查看版本。更新时重新打开上述脚本，确认更新，再刷新一次教材页。
+**第 1 步 · 安装油猴。** 在 Edge 打开 [Tampermonkey 官方下载页](https://www.tampermonkey.net/)，选 Microsoft Edge，跟随链接进入扩展商店，点击「获取」和「添加扩展」。已装油猴可直接做第 2 步。
+
+**第 2 步 · 打开运行权限。** 在 Edge 地址栏输入 `edge://extensions`，找到 Tampermonkey →「详细信息」，打开「允许用户脚本」。旧版 Edge 如果没有这个开关，可以在扩展管理页开启「开发人员模式」。[油猴官方图解](https://www.tampermonkey.net/faq.php?q=Q209)
+
+**第 3 步 · 把助手添加到油猴。** 用同一个 Edge 浏览器点击下面的安装链接。看到油猴显示「WebTask Copilot 网页助手」后，点「安装」。以后更新时也可打开这个链接，确认更新后刷新教材页。
+
+**[点击安装 WebTask 助手（打开 .user.js）](https://raw.githubusercontent.com/LuoQue-tian/webtask-copilot/main/dist/webtask-copilot.user.js)**
+
+想从仓库首页自己找文件？在文件列表依次点 **dist → webtask-copilot.user.js → Raw**（查看原始文件）。安装只需要这一个 JS 文件。
+
+**如果看到满屏代码，或者文件已经下载：**
+
+1. 在原始代码页按 `Ctrl+A`、`Ctrl+C` 复制全部内容。如果手上是下载好的 `webtask-copilot.user.js`，先右键文件 →「打开方式」→「记事本」，再全选复制。
+2. 点击 Edge 右上角拼图形状的「扩展」→「Tampermonkey」→「添加新脚本」。也可以进入油猴「管理面板」，点标签栏的 **＋**。
+3. 点击代码编辑区，按 `Ctrl+A` 选中默认模板，按 `Ctrl+V` 替换，再按 `Ctrl+S` 保存。在「已安装脚本」里确认 **WebTask Copilot 网页助手** 的开关已开启。
+
+**第 4 步 · 确认装好了。** 回到 U 校园，打开一页有题目的教材，按 `F5` 刷新。点击右下角「WebTask 助手」→「题目」→「提取本组」。面板能显示当前题干，就可以开始使用了。
 
 只提取题目时，装好脚本即可。AI 辅导需要自己的 DeepSeek API Key；离线英文转写需要额外启动下文的本机服务。
 
